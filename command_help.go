@@ -2,7 +2,7 @@ package main
 
 import "fmt"
 
-func commandHelp() error {
+func commandHelp(cfg *config) error {
 	fmt.Printf("Welcome to %v! These are commands available: \n", cliName)
 
 	commandMap := returnCommandMap()
