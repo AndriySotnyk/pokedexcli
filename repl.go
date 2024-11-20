@@ -12,13 +12,14 @@ import (
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(*config) error
+	callback    func(*config, ...string) error
 }
 
 type config struct {
-	nextURL     *string
-	previousURL *string
-	client      pokeapi.Client
+	nextURL       *string
+	previousURL   *string
+	client        pokeapi.Client
+	CaughtPokemon map[string]pokeapi.Pokemon
 }
 
 const cliName = "Pokedex"
@@ -30,16 +31,24 @@ func startRepl(cfg *config) {
 	for {
 		printPrompt()
 		sc.Scan()
-		text := cleanInput(sc.Text())
-		if command, exists := commandMap[text]; exists {
-			err := command.callback(cfg)
+		args := strings.Split(cleanInput(sc.Text()), " ")
+		if command, exists := commandMap[args[0]]; exists {
+			if err := sc.Err(); err != nil {
+				fmt.Println("Error, reading input", err)
+				commandMap["exit"].callback(cfg, args[1])
+			}
+			var err error
+			switch {
+			case len(args) == 2:
+				err = command.callback(cfg, args[1])
+			default:
+				err = command.callback(cfg)
+			}
 			if err != nil {
 				fmt.Println(err)
 			}
-			continue
 		} else {
-			printUnknown(text)
-			continue
+			printUnknown(args[0])
 		}
 	}
 }
@@ -72,12 +81,32 @@ func returnCommandMap() map[string]cliCommand {
 		"map": {
 			name:        "map",
 			description: "Show next locations",
-			callback:    mapF,
+			callback:    commandMapF,
 		},
 		"mapb": {
 			name:        "map",
 			description: "Show previuous locations",
-			callback:    mapB,
+			callback:    commandMapB,
+		},
+		"explore": {
+			name:        "explore",
+			description: "Show found",
+			callback:    commandExplore,
+		},
+		"catch": {
+			name:        "catch",
+			description: "Catch pokemon",
+			callback:    commandCatch,
+		},
+		"inspect": {
+			name:        "inspect",
+			description: "Inspect caught pokemon",
+			callback:    commandInspect,
+		},
+		"pokedex": {
+			name:        "pokedex",
+			description: "Show all pokemons in pokedex",
+			callback:    commandPokedex,
 		},
 	}
 }

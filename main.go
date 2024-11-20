@@ -7,9 +7,10 @@ import (
 )
 
 func main() {
-	pokeClient := pokeapi.NewClient(time.Second * 5)
+	pokeClient := pokeapi.NewClient(time.Second*5, time.Minute*5)
 	cfg := &config{
-		client: pokeClient,
+		CaughtPokemon: make(map[string]pokeapi.Pokemon),
+		client:        pokeClient,
 	}
 	startRepl(cfg)
 }

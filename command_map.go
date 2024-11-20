@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-func mapF(cfg *config) error {
+func commandMapF(cfg *config, args ...string) error {
 	locationsResp, err := cfg.client.ListLocations(cfg.nextURL)
 	if err != nil {
 		return err
@@ -18,7 +18,7 @@ func mapF(cfg *config) error {
 	return nil
 }
 
-func mapB(cfg *config) error {
+func commandMapB(cfg *config, args ...string) error {
 	locationsResp, err := cfg.client.ListLocations(cfg.previousURL)
 	if err != nil {
 		return err
